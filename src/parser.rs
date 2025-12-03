@@ -226,7 +226,7 @@ fn module_body_parser<'a>(input: &'a str, modules: &mut Vec<ParsedPrimitive>) ->
 
 fn parse_modules_from_blif_str<'a>(input: &'a str, circuit: &mut Vec<ParsedPrimitive>) -> IResultStr<'a> {
     // remove comment
-    // is_not will match \r or \n
+    // is_not will stop before \r or \n
     let (i, _) = value((), pair(tag("#"), is_not("\r\n")))(input)?;
     let (i, _) = take_until(".")(i)?;
 
