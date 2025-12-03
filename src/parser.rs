@@ -240,7 +240,7 @@ fn parse_modules_from_blif_str<'a>(input: &'a str, circuit: &mut Vec<ParsedPrimi
     Ok(("", ""))
 }
 
-fn parse_blif(input: &str) -> Result<Vec<ParsedPrimitive>, String> {
+pub fn parse_blif(input: &str) -> Result<Vec<ParsedPrimitive>, String> {
     let mut circuit = vec![];
     let res = parse_modules_from_blif_str(input, &mut circuit);
     match res {
