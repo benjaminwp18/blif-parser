@@ -12,10 +12,6 @@ use nom::{
     IResult,
 };
 
-fn take_until_newline(input: &str) -> IResult<&str, &str> {
-    alt((take_until("\r\n"), take_until("\n")))(input)
-}
-
 fn take_until_or_end<'a>(tag: &'a str, istr: &'a str) -> IResultStr<'a> {
     let ret: IResult<&str, &str> = take_until(tag)(istr);
     match ret {
@@ -25,7 +21,7 @@ fn take_until_or_end<'a>(tag: &'a str, istr: &'a str) -> IResultStr<'a> {
 }
 
 fn terminated_newline<'a>(istr: &'a str) -> IResultStr<'a> {
-    let ret: IResult<&str, &str> = terminated(take_until_newline, nom::character::complete::line_ending)(istr);
+    let ret: IResult<&str, &str> = terminated(take_until("\n"), nom::character::complete::line_ending)(istr);
     match ret {
         Ok(x) => Ok(x),
         Err(_) => Ok(("", istr)),
@@ -175,18 +171,18 @@ fn module_body_parser<'a>(input: &'a str, modules: &mut Vec<ParsedPrimitive>) ->
 
     // Get module body
     let (i, _) = tag(".model ")(input)?;
-    let (i, name) = terminated(take_until_newline, nom::character::complete::line_ending)(i)?;
+    let (i, name) = terminated(take_until("\n"), nom::character::complete::line_ending)(i)?;
     let (mut i, body) = terminated(
         alt((take_until(MODULE_END_WINDOWS), take_until(MODULE_END_UNIX))),
         nom::character::complete::line_ending,
     )(i)?;
 
     // Parse inputs
-    let (bi, iline) = terminated(take_until_newline, nom::character::complete::line_ending)(body)?;
+    let (bi, iline) = terminated(take_until("\n"), nom::character::complete::line_ending)(body)?;
     let inputs: Vec<String> = iline.split(' ').map(|v| v.to_string()).skip(1).collect();
 
     // Parse outputs
-    let (bi, oline) = terminated(take_until_newline, nom::character::complete::line_ending)(bi)?;
+    let (bi, oline) = terminated(take_until("\n"), nom::character::complete::line_ending)(bi)?;
     let outputs: Vec<String> = oline.split(' ').map(|v| v.to_string()).skip(1).collect();
 
     let mut elems = vec![];
@@ -211,7 +207,7 @@ fn module_body_parser<'a>(input: &'a str, modules: &mut Vec<ParsedPrimitive>) ->
         (i, _) = take_until(".")(i)?;
     } else {
         // End of file
-        (i, _) = take_until_newline(i)?;
+        (i, _) = take_until("\n")(i)?;
     }
 
     modules.push(ParsedPrimitive::Module {
