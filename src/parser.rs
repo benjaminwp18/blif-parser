@@ -299,4 +299,9 @@ pub mod parser_tests {
     pub fn test_const_parse() {
         assert_eq!(test_blif_parser("./tests/Const.lut.blif"), true);
     }
+
+    #[test]
+    pub fn test_digitaltop_parse() {
+        assert_eq!(test_blif_parser("./tests/DigitalTop.lut.blif"), true);
+    }
 }
