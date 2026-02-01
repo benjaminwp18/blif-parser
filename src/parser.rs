@@ -12,10 +12,7 @@ use nom::{
     IResult,
 };
 
-const MODULE_END_UNIX: &'static str = "\n.end\n";
-const MODULE_END_WINDOWS: &'static str = "\r\n.end\r\n";
-
-pub fn take_until_newline(input: &str) -> IResult<&str, &str> {
+fn take_until_newline(input: &str) -> IResult<&str, &str> {
     alt((take_until("\r\n"), take_until("\n")))(input)
 }
 
@@ -173,6 +170,9 @@ fn latch_parser<'a>(input: &'a str, latches: &mut Vec<ParsedPrimitive>) -> IResu
 }
 
 fn module_body_parser<'a>(input: &'a str, modules: &mut Vec<ParsedPrimitive>) -> IResultStr<'a> {
+    const MODULE_END_UNIX: &'static str = "\n.end\n";
+    const MODULE_END_WINDOWS: &'static str = "\r\n.end\r\n";
+
     // Get module body
     let (i, _) = tag(".model ")(input)?;
     let (i, name) = terminated(take_until_newline, nom::character::complete::line_ending)(i)?;
@@ -225,8 +225,7 @@ fn module_body_parser<'a>(input: &'a str, modules: &mut Vec<ParsedPrimitive>) ->
 }
 
 fn parse_modules_from_blif_str<'a>(input: &'a str, circuit: &mut Vec<ParsedPrimitive>) -> IResultStr<'a> {
-    // remove comment
-    // is_not will stop before \r or \n
+    // remove comments; is_not will stop before \r or \n
     let (i, _) = value((), pair(tag("#"), is_not("\r\n")))(input)?;
     let (i, _) = take_until(".")(i)?;
 
